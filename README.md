@@ -1,49 +1,73 @@
-<p align="center">
-  <img src="QCMania.png" alt="QCMania Logo" width="300"/>
-</p>
+# QCMania
 
-# QCMania Overlay
-
-A magical, animated, Google Sheets-powered scoreboard overlay for the **QCMania Elemental Trials**. Designed to be streamed live via Twitch or OBS.
+Welcome to the official overlay and scoreboard repository for **QCMania**, a community-run elemental showdown inspired by Avatar and built for the Quidditch Champions esports scene.
 
 ---
 
-## 🔮 About the Project
+## 🌟 What is QCMania?
 
-This overlay shows live **Core Shard totals** for each Nation — Fire, Air, Earth, and Water — during the QCMania event. It auto-updates from a Google Sheet every 10 seconds and includes:
+QCMania is a multi-trial competition where players align with one of the **four elemental nations**:
 
-- 🌈 Glowing, animated gradient backgrounds per Nation
-- 📊 Live shard totals pulled from Google Sheets
-- 🪙 Custom Core Shard coin icon
-- 🧙‍♀️ Magical theme font for stream immersion
+- 🔥 Fire Nation  
+- 🌪 Air Nation  
+- 🌱 Earth Nation  
+- 🌊 Water Nation  
 
----
-
-## ⚙️ How It Works
-
-- `index.html` fetches data from a published Google Sheet
-- Each Nation is displayed in order of their shard total
-- Nation colors match the official QCMania branding
-- Designed to be used in Streamlabs or OBS as a browser source (1920x1080)
+Players earn **Core Shards** for their nation by competing in Trials, completing challenges, and participating in social media efforts and volunteering.
 
 ---
 
-## 📦 Files Included
+## 🧾 Features
 
-- `index.html` — main overlay file
-- `Air_Logo.png`, `Fire_Logo.png`, `Earth_Logo.png`, `Water_Logo.png` — nation icons
-- `Core Shard.png` — shard coin graphic
-- `QCMania.png` — event logo
-- `README.md` — you're looking at it!
+### 🎮 Live Core Shard Scoreboard
+- Dynamic overlay that pulls scores directly from a Google Sheet
+- Shows shard totals per nation
+- Animated nation gradients, icons, and shard counter  
+🔗 [View Live](https://lightfury.github.io/QCMania/index.html)
 
 ---
 
-## 🛠 Setup Instructions
+### 🏆 Stat Leaderboard (Volunteers, Posts, Trial Wins)
+- Displays **top nation** in each category:
+  - Most Volunteers
+  - Most Social Media Posts
+  - Most Trials Won
+- Auto-updating every 10 seconds  
+🔗 [View Leaders](https://lightfury.github.io/QCMania/leaders.html)
 
-1. **Publish your Google Sheet to the web**  
-   Use `File > Share > Publish to web`, select the sheet containing Nation + Shard data, and get the CSV output link.
+---
 
-2. **Update the sheet URL in `index.html`**  
-   Replace the `sheetUrl` in the JavaScript section with your sheet’s CSV link:
-   ```js
-   const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/.../output=csv';
+## 📁 File Structure
+
+| File Name         | Description                                      |
+|-------------------|--------------------------------------------------|
+| `index.html`      | Main Core Shard overlay                          |
+| `leaders.html`    | Stat leaders overlay (Volunteers, Posts, Wins)   |
+| `Fire_Logo.png`   | Fire Nation icon                                 |
+| `Air_Logo.png`    | Air Nation icon                                  |
+| `Earth_Logo.png`  | Earth Nation icon                                |
+| `Water_Logo.png`  | Water Nation icon                                |
+| `Core Shard.png`  | Custom shard icon used in the scoreboard         |
+| `QCMania.png`     | Event branding image                             |
+
+---
+
+## 📊 Data Source
+
+This repo fetches live data from our public Google Sheet:
+
+**Google Sheet**  
+[QCMania Live Scoreboard](https://docs.google.com/spreadsheets/d/1NAxt2mT6NCw9n4GyDywiLGDv8uSDG5sOWjapu2VMOM/edit#gid=0)
+
+> **Note:** You must keep the sheet set to `Anyone with the link -> Viewer` and public publishing enabled.
+
+---
+
+## 💬 Community & Support
+
+For questions, bugs, or suggestions:  
+Join us on **Discord** in the [#qcmania-trials](https://discord.gg/league7) thread.
+
+---
+
+Made with 💜 by the League 7 community and the spirit of esports storytelling.
