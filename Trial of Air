@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>QCMania | Trial of Air</title>
+  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: transparent;
+      font-family: 'IM Fell English SC', serif;
+      color: white;
+      margin: 0;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: 48px;
+      margin-bottom: 30px;
+      text-shadow: 2px 2px 6px #000;
+    }
+
+    .match-row, .bracket-row {
+      margin: 10px 0;
+      font-size: 24px;
+      text-align: center;
+    }
+
+    .score-box {
+      display: flex;
+      flex-direction: column;
+      margin-top: 30px;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(255,255,255,0.2);
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    .score-box ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .score-box li {
+      font-size: 22px;
+      padding: 5px 0;
+    }
+
+    .bracket {
+      margin-top: 40px;
+      border-top: 2px solid rgba(255,255,255,0.3);
+      padding-top: 30px;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .bracket h2 {
+      margin-bottom: 20px;
+    }
+
+    .glow {
+      color: #89c4ff;
+      text-shadow: 0 0 10px #89c4ff;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌪️ Trial of Air - QCMania</h1>
+
+  <div id="matches"></div>
+
+  <div class="score-box">
+    <h2>📊 Nation Wins</h2>
+    <ul id="nation-scores"></ul>
+  </div>
+
+  <div class="bracket">
+    <h2>🏆 Final 4 Bracket</h2>
+    <div class="bracket-row" id="sf1a">[🔥 Fire Finalist] ┐</div>
+    <div class="bracket-row">        		├── Winner: <span id="sf1Winner">___</span></div>
+    <div class="bracket-row" id="sf1b">[🌍 Earth Finalist] ┘</div>
+    <br>
+    <div class="bracket-row" id="sf2a">[🌪️ Air Finalist] ┐</div>
+    <div class="bracket-row">        		├── Winner: <span id="sf2Winner">___</span></div>
+    <div class="bracket-row" id="sf2b">[🌊 Water Finalist] ┘</div>
+    <h2 class="glow">🏆 Champion: <span id="champion">___</span></h2>
+  </div>
+
+  <script>
+    const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSBNIOSFv1qrGt5QWwZ0FDVCJDCl42s0e8-SzI1gQTGq1SD5eF5-Pm6Ru4q0PfA70PaEYhsMj84uSqx/pub?gid=2114298233&single=true&output=csv';
+
+    async function loadAirTrialData() {
+      const res = await fetch(sheetUrl);
+      const text = await res.text();
+      const rows = text.trim().split('\n').map(r => r.split(','));
+
+      const matchesContainer = document.getElementById('matches');
+      const nationScoresContainer = document.getElementById('nation-scores');
+      const matchRows = rows.slice(1, 13); // Only rows with match data
+
+      const nationWins = { "Air Nation": 0, "Fire Nation": 0, "Earth Nation": 0, "Water Nation": 0 };
+
+      matchRows.forEach((r, i) => {
+        const playerA = r[6];
+        const playerB = r[7];
+        const winner = r[8];
+        const nation = r[9];
+
+        if (nationWins[nation]) nationWins[nation]++;
+
+        const div = document.createElement('div');
+        div.className = 'match-row';
+        div.innerText = `[${playerA}] vs [${playerB}] – Winner: ${winner || '__________'}`;
+        matchesContainer.appendChild(div);
+      });
+
+      for (let [nation, score] of Object.entries(nationWins)) {
+        const li = document.createElement('li');
+        li.innerText = `${nation}: ${score} Wins`;
+        nationScoresContainer.appendChild(li);
+      }
+
+      // Bracket finals
+      document.getElementById('sf1a').innerText = `[🔥 ${rows[1][11] || 'Fire Finalist'}] ┐`;
+      document.getElementById('sf1b').innerText = `[🌍 ${rows[2][11] || 'Earth Finalist'}] ┘`;
+      document.getElementById('sf2a').innerText = `[🌪️ ${rows[0][11] || 'Air Finalist'}] ┐`;
+      document.getElementById('sf2b').innerText = `[🌊 ${rows[3][11] || 'Water Finalist'}] ┘`;
+      document.getElementById('sf1Winner').innerText = rows[13][8] || '___';
+      document.getElementById('sf2Winner').innerText = rows[14][8] || '___';
+      document.getElementById('champion').innerText = rows[15][8] || '___';
+    }
+
+    loadAirTrialData();
+  </script>
+</body>
+</html>
