@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>QCMania Core Shards</title>
+  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: transparent;
+      font-family: 'IM Fell English SC', serif;
+      color: white;
+      margin: 0;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: 48px;
+      margin-bottom: 40px;
+      text-shadow: 2px 2px 6px #000;
+    }
+
+    .nation-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 900px;
+      padding: 25px 40px;
+      margin: 20px 0;
+      border-radius: 20px;
+      font-size: 30px;
+      font-weight: bold;
+      animation: pulse 4s infinite alternate;
+      box-shadow: 0 0 25px rgba(255, 255, 255, 0.15);
+    }
+
+    .nation-name {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .icon {
+      width: 64px;
+      height: 64px;
+      background: transparent;
+    }
+
+    .shard-total {
+      font-size: 42px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .shard-icon {
+      width: 42px;
+      height: 42px;
+      filter: drop-shadow(0 0 6px rgba(255,255,255,0.5));
+    }
+
+    .fire {
+      background: linear-gradient(to right, #aa3b3b, #ffc548);
+      animation: gradientFlow 8s ease infinite, pulse 4s infinite alternate;
+    }
+
+    .air {
+      background: linear-gradient(to right, #3893fc, #f1f7ff);
+      animation: gradientFlow 8s ease infinite, pulse 4s infinite alternate;
+      color: black;
+    }
+
+    .earth {
+      background: linear-gradient(to right, #22681f, #8f7d48);
+      animation: gradientFlow 8s ease infinite, pulse 4s infinite alternate;
+    }
+
+    .water {
+      background: linear-gradient(to right, #000d7e, #0099ff);
+      animation: gradientFlow 8s ease infinite, pulse 4s infinite alternate;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 10px rgba(255,255,255,0.2); }
+      100% { box-shadow: 0 0 20px rgba(255,255,255,0.6); }
+    }
+
+    @keyframes gradientFlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+  </style>
+</head>
+<body>
+  <h1>QCMania Core Shard Totals</h1>
+  <div id="overlay">Loading shard totals...</div>
+
+  <script>
+    const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSBNIOSFv1qrGt5QWwZ0FDVCJDCl42s0e8-SzI1gQTGq1SD5eF5-Pm6Ru4q0PfA70PaEYhsMj84uSqx/pub?gid=205255799&single=true&output=csv';
+
+    const nationIcons = {
+      "Fire Nation": "https://lghtfury.github.io/QCMania/Fire_Logo.png",
+      "Air Nation": "https://lghtfury.github.io/QCMania/Air_Logo.png",
+      "Earth Nation": "https://lghtfury.github.io/QCMania/Earth_Logo.png",
+      "Water Nation": "https://lghtfury.github.io/QCMania/Water_Logo.png"
+    };
+
+    const nationStyles = {
+      "Fire Nation": "fire",
+      "Air Nation": "air",
+      "Earth Nation": "earth",
+      "Water Nation": "water"
+    };
+
+    async function loadData() {
+      const response = await fetch(sheetUrl);
+      const csv = await response.text();
+      const rows = csv.trim().split('\n').map(row => row.split(','));
+
+      const nations = [];
+
+      for (let i = 1; i < rows.length; i++) {
+        const [nation, shards] = rows[i];
+        if (!nation || !shards) continue;
+
+        nations.push({
+          nation,
+          shards: parseInt(shards.replace(/[^\d]/g, '')) || 0
+        });
+      }
+
+      nations.sort((a, b) => b.shards - a.shards);
+
+      let html = '';
+      nations.forEach(n => {
+        const cssClass = nationStyles[n.nation] || '';
+        const icon = nationIcons[n.nation] || '';
+        html += `
+          <div class="nation-row ${cssClass}">
+            <div class="nation-name">
+              <img class="icon" src="${icon}" alt="${n.nation} Logo" />
+              ${n.nation}
+            </div>
+            <div class="shard-total">
+              ${n.shards}
+              <img class="shard-icon" src="https://lghtfury.github.io/QCMania/Core%20Shard.png" alt="Core Shard Icon" />
+            </div>
+          </div>
+        `;
+      });
+
+      document.getElementById('overlay').innerHTML = html;
+    }
+
+    loadData();
+    setInterval(loadData, 10000);
+  </script>
+</body>
+</html>
