@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="QCMania.png" alt="QCMania Logo" width="300"/>
+</p>
+
 # QCMania Overlay
 
 A magical, animated, Google Sheets-powered scoreboard overlay for the **QCMania Elemental Trials**. Designed to be streamed live via Twitch or OBS.
@@ -29,6 +33,7 @@ This overlay shows live **Core Shard totals** for each Nation — Fire, Air, Ear
 - `index.html` — main overlay file
 - `Air_Logo.png`, `Fire_Logo.png`, `Earth_Logo.png`, `Water_Logo.png` — nation icons
 - `Core Shard.png` — shard coin graphic
+- `QCMania.png` — event logo
 - `README.md` — you're looking at it!
 
 ---
