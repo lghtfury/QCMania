@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>QCMania | Trial of Air</title>
+  <title>QCMania | Trial of Air - Nation Matchups</title>
   <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&display=swap" rel="stylesheet">
   <style>
     body {
@@ -20,229 +20,121 @@
       font-size: 48px;
       margin-bottom: 30px;
       text-shadow: 2px 2px 6px #000;
-      display: flex;
-      align-items: center;
-      gap: 15px;
     }
 
-    h1 img {
-      height: 64px;
-      vertical-align: middle;
+    table {
+      border-collapse: collapse;
+      margin: 30px 0;
     }
 
-    .match-row, .bracket-row {
-      margin: 10px 0;
-      font-size: 24px;
+    th, td {
+      padding: 12px 18px;
       text-align: center;
-      padding: 10px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(255,255,255,0.1);
+      font-size: 20px;
+      border: 1px solid rgba(255,255,255,0.2);
+      min-width: 120px;
     }
 
-    .score-box {
-      display: flex;
-      flex-direction: column;
-      margin-top: 30px;
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 0 15px rgba(255,255,255,0.2);
-      background: rgba(0, 0, 0, 0.5);
+    th {
+      background-color: rgba(255, 255, 255, 0.05);
     }
 
-    .score-box ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    .score-box li {
-      font-size: 22px;
-      padding: 5px 0;
-    }
-
-    .bracket {
-      margin-top: 40px;
-      border-top: 2px solid rgba(255,255,255,0.3);
-      padding-top: 30px;
-      width: 100%;
-      max-width: 600px;
-    }
-
-    .bracket h2 {
-      margin-bottom: 20px;
-    }
-
-    .glow {
-      color: #89c4ff;
-      text-shadow: 0 0 10px #89c4ff;
-    }
-
-    .air-gradient {
+    .air {
       background: linear-gradient(to right, #3893fc, #f1f7ff);
       color: black;
     }
-    .fire-gradient {
+    .fire {
       background: linear-gradient(to right, #aa3b3b, #ffc548);
     }
-    .earth-gradient {
+    .earth {
       background: linear-gradient(to right, #22681f, #8f7d48);
     }
-    .water-gradient {
+    .water {
       background: linear-gradient(to right, #000d7e, #0099ff);
     }
 
-    .champion-banner {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 20px 30px;
-      border-radius: 20px;
-      font-size: 28px;
-      font-weight: bold;
-      margin-bottom: 40px;
-      text-shadow: 1px 1px 2px #000;
-    }
-
-    .logo {
-      height: 48px;
-    }
-
-    .winner-name {
-      font-size: 32px;
-      text-shadow: 2px 2px 6px #000;
-    }
-
-    .hidden {
-      display: none;
+    .blackout {
+      background-color: #111;
     }
   </style>
 </head>
 <body>
-  <div id="overall-champion-banner" class="champion-banner hidden"></div>
+  <h1>Trial of Air – Cohort A Matchups</h1>
+  <table>
+    <tr>
+      <th class="blackout">VS</th>
+      <th>DYNAMIT3COP3</th>
+      <th>Lihsir</th>
+      <th>Trobbo</th>
+      <th>denji</th>
+    </tr>
+    <tr>
+      <th>DYNAMIT3COP3</th>
+      <td class="blackout">—</td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>Lihsir</th>
+      <td></td>
+      <td class="blackout">—</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>Trobbo</th>
+      <td></td>
+      <td></td>
+      <td class="blackout">—</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>denji</th>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td class="blackout">—</td>
+    </tr>
+  </table>
 
-  <h1>
-    <img src="https://lghtfury.github.io/QCMania/Air_Logo.png" alt="Air Nation Logo" />
-    Trial of Air – QCMania
-  </h1>
-
-  <div id="matches"></div>
-
-  <div class="score-box">
-    <h2>📊 Nation Wins</h2>
-    <ul id="nation-scores"></ul>
-  </div>
-
-  <div class="bracket">
-    <h2>🏆 Final 4 Bracket</h2>
-    <div class="bracket-row" id="sf1a">[🔥 Fire Finalist] ┐</div>
-    <div class="bracket-row">        		├── Winner: <span id="sf1Winner">___</span></div>
-    <div class="bracket-row" id="sf1b">[🌍 Earth Finalist] ┘</div>
-    <br>
-    <div class="bracket-row" id="sf2a">[🌪️ Air Finalist] ┐</div>
-    <div class="bracket-row">        		├── Winner: <span id="sf2Winner">___</span></div>
-    <div class="bracket-row" id="sf2b">[🌊 Water Finalist] ┘</div>
-    
-  </div>
-
-  <script>
-    const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSBNIOSFv1qrGt5QWwZ0FDVCJDCl42s0e8-SzI1gQTGq1SD5eF5-Pm6Ru4q0PfA70PaEYhsMj84uSqx/pub?gid=2114298233&single=true&output=csv';
-
-    function getNationGradientClass(playerName) {
-      const name = playerName.toLowerCase();
-      if (name.includes('dynamit3cop3') || name.includes('theonlyscourage')) return 'air-gradient';
-      if (name.includes('lihsir') || name.includes('neo')) return 'fire-gradient';
-      if (name.includes('trobbo') || name.includes('timetwister')) return 'earth-gradient';
-      if (name.includes('denji') || name.includes('darkshadowfox91')) return 'water-gradient';
-      return '';
-    }
-
-    async function loadAirTrialData() {
-      const res = await fetch(sheetUrl);
-      const text = await res.text();
-      const rows = text.trim().split('\n').map(r => r.split(','));
-
-      const matchesContainer = document.getElementById('matches');
-      const nationScoresContainer = document.getElementById('nation-scores');
-      const matchRows = rows.slice(1, 13);
-
-      const nationWins = { "Air Nation": 0, "Fire Nation": 0, "Earth Nation": 0, "Water Nation": 0 };
-
-      matchRows.forEach((r, i) => {
-        const playerA = r[7];
-        const playerB = r[8];
-        const winner = r[9];
-        const nation = r[10];
-
-        if (nation && nationWins[nation] !== undefined) nationWins[nation]++;
-
-        const div = document.createElement('div');
-        div.className = `match-row ${getNationGradientClass(playerA)}`;
-        div.innerText = `[${playerA}] vs [${playerB}] – Winner: ${winner || '__________'}`;
-        matchesContainer.appendChild(div);
-      });
-
-      for (let [nation, score] of Object.entries(nationWins)) {
-        const li = document.createElement('li');
-        li.innerText = `${nation}: ${score} Wins`;
-        nationScoresContainer.appendChild(li);
-      }
-
-      // Finalists and match winners
-      document.getElementById('sf1a').innerText = `[🔥 ${rows[1][12] || 'Fire Finalist'}] ┐`;
-      document.getElementById('sf1b').innerText = `[🌍 ${rows[2][12] || 'Earth Finalist'}] ┘`;
-      document.getElementById('sf2a').innerText = `[🌪️ ${rows[0][12] || 'Air Finalist'}] ┐`;
-      document.getElementById('sf2b').innerText = `[🌊 ${rows[3][12] || 'Water Finalist'}] ┘`;
-      document.getElementById('sf1Winner').innerText = rows[13][9] || '___';
-      document.getElementById('sf2Winner').innerText = rows[14][9] || '___';
-
-      // Determine Trial Champion from rows 16–18 (index 15–17)
-      const finalWinners = [rows[15][9], rows[16][9], rows[17][9]];
-      const winCounts = {};
-
-      finalWinners.forEach(name => {
-        if (!name || name === '___') return;
-        winCounts[name] = (winCounts[name] || 0) + 1;
-      });
-
-      let finalChampion = '';
-      for (let [name, count] of Object.entries(winCounts)) {
-        if (count >= 2) {
-          finalChampion = name;
-          break;
-        }
-      }
-
-      document.getElementById('champion').innerText = finalChampion || '___';
-
-      // Show champion banner if declared
-      if (finalChampion) {
-        const roster = rows.slice(1, 9); // First 8 rows = player data
-        const nation = (roster.find(r => r[0] === finalChampion) || [])[1] || '';
-
-        const nationGradients = {
-          "Air Nation": "air-gradient",
-          "Fire Nation": "fire-gradient",
-          "Earth Nation": "earth-gradient",
-          "Water Nation": "water-gradient"
-        };
-        const nationLogos = {
-          "Air Nation": "https://lghtfury.github.io/QCMania/Air_Logo.png",
-          "Fire Nation": "https://lghtfury.github.io/QCMania/Fire_Logo.png",
-          "Earth Nation": "https://lghtfury.github.io/QCMania/Earth_Logo.png",
-          "Water Nation": "https://lghtfury.github.io/QCMania/Water_Logo.png"
-        };
-
-        const champDiv = document.getElementById('overall-champion-banner');
-        champDiv.className = `champion-banner ${nationGradients[nation] || ''}`;
-        champDiv.innerHTML = `
-          <img src="${nationLogos[nation] || ''}" alt="${nation} Logo" class="logo" />
-          Trial of Air Champion: <span class="winner-name">${finalChampion}</span>
-        `;
-        champDiv.classList.remove('hidden');
-      }
-    }
-
-    loadAirTrialData();
-  </script>
+  <h1>Trial of Air – Cohort B Matchups</h1>
+  <table>
+    <tr>
+      <th class="blackout">VS</th>
+      <th>TheOnlyScourage</th>
+      <th>Neo</th>
+      <th>timetwister</th>
+      <th>Darkshadowfox91</th>
+    </tr>
+    <tr>
+      <th>TheOnlyScourage</th>
+      <td class="blackout">—</td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>Neo</th>
+      <td></td>
+      <td class="blackout">—</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>timetwister</th>
+      <td></td>
+      <td></td>
+      <td class="blackout">—</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>Darkshadowfox91</th>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td class="blackout">—</td>
+    </tr>
+  </table>
 </body>
 </html>
