@@ -2,120 +2,106 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Trial of Earth - QCMania</title>
+  <title>Trial of Earth Overlay</title>
   <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.3/tabletop.min.js"></script>
   <style>
     body {
       margin: 0;
-      font-family: 'IM Fell English SC', serif;
-      background-color: #f3f1ea;
-      background-image: url('b44c28ff-b10c-4b49-99bc-008fb41b3d87.png');
-      background-repeat: no-repeat;
+      background: url('https://i.imgur.com/rMd5Iuo.jpg') no-repeat center center fixed;
       background-size: cover;
-      background-attachment: fixed;
-      color: #2d2d2d;
-    }
-
-    .banner {
-      background-color: rgba(0, 0, 0, 0.7);
-      padding: 40px 20px;
-      text-align: center;
-      color: white;
-      font-size: 48px;
-      text-shadow: 2px 2px 6px #000;
-      border-bottom: 4px solid #4e4e4e;
-    }
-
-    .container {
-      padding: 40px;
+      font-family: 'IM Fell English SC', serif;
       display: flex;
-      flex-wrap: wrap;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 20px;
+    }
+
+    .row {
+      display: flex;
       justify-content: center;
-      gap: 30px;
+      margin: 40px 0;
+      gap: 40px;
     }
 
-    .team-card {
-      background: rgba(255, 255, 255, 0.95);
-      border: 2px solid #555;
-      border-radius: 12px;
-      width: 320px;
-      padding: 20px;
-      box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.25);
-      transition: transform 0.2s;
-    }
-
-    .team-card:hover {
-      transform: scale(1.03);
-    }
-
-    .team-card h2 {
-      margin-top: 0;
-      font-size: 22px;
-      color: #2e4d1f;
+    .team-container {
+      text-align: center;
     }
 
     .nation-logo {
-      height: 40px;
-      margin-bottom: 10px;
+      height: 48px;
+      margin-bottom: 12px;
     }
 
-    .lineup div {
-      padding: 4px 0;
-      border-bottom: 1px solid #ccc;
-    }
-
-    .footer {
+    .team-box {
+      width: 420px;
+      height: 110px;
+      border: 6px solid #444;
+      border-radius: 14px;
+      background-color: rgba(255, 255, 255, 0.96);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: bold;
+      color: #222;
+      box-shadow: 0 0 12px rgba(0,0,0,0.3);
       text-align: center;
-      padding: 30px;
-      color: #aaa;
-      font-size: 14px;
+      padding: 10px;
     }
+
+    .Air { border-color: #3893fc; }
+    .Fire { border-color: #ff5c3e; }
+    .Earth { border-color: #4caf50; }
+    .Water { border-color: #0099ff; }
   </style>
 </head>
 <body>
-  <div class="banner">
-    <img src="Earth_Logo.png" alt="Earth Logo" style="height: 50px; vertical-align: middle;">
-    Trial of Earth - Team Lineups
-  </div>
-
-  <div class="container" id="teamsContainer"></div>
-
-  <div class="footer">Made with 🪨 and ☁️ by QCMania | Auto-updating from Google Sheets</div>
+  <div class="row" id="cohortA"></div>
+  <div class="row" id="cohortB"></div>
 
   <script>
     const nationLogos = {
-      "Air": "Air_Logo.png",
-      "Fire": "Fire_Logo.png",
-      "Earth": "Earth_Logo.png",
-      "Water": "Water_Logo.png"
+      "Air Nation": "Air_Logo.png",
+      "Fire Nation": "Fire_Logo.png",
+      "Earth Nation": "Earth_Logo.png",
+      "Water Nation": "Water_Logo.png"
+    };
+
+    const nationClasses = {
+      "Air Nation": "Air",
+      "Fire Nation": "Fire",
+      "Earth Nation": "Earth",
+      "Water Nation": "Water"
     };
 
     window.addEventListener('DOMContentLoaded', () => {
       Tabletop.init({
         key: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSBNIOSFv1qrGt5QWwZ0FDVCJDCl42s0e8-SzI1gQTGq1SD5eF5-Pm6Ru4q0PfA70PaEYhsMj84uSqx/pubhtml',
         simpleSheet: true,
-        wanted: ["Trial of Earth Teams"], // This is optional if your sheet has multiple tabs
         callback: function(data) {
-          const container = document.getElementById('teamsContainer');
           data.forEach(row => {
-            const nation = row['Nation'];
-            const logoSrc = nationLogos[nation] || '';
+            const cohort = row['Cohort']?.trim();
+            const nation = row['Nation']?.trim();
+            const teamName = row['Team Name']?.trim();
 
-            const team = document.createElement('div');
-            team.className = 'team-card';
-            team.innerHTML = `
-              <img src="${logoSrc}" class="nation-logo" alt="${nation} Logo">
-              <h2>${row['Team Name']}</h2>
-              <div class="lineup">
-                <div><strong>Keeper:</strong> ${row['Keeper']}</div>
-                <div><strong>Chaser 1:</strong> ${row['Chaser 1']}</div>
-                <div><strong>Chaser 2:</strong> ${row['Chaser 2']}</div>
-                <div><strong>Chaser 3:</strong> ${row['Chaser 3']}</div>
-                <div><strong>Reserve:</strong> ${row['Reesrve']}</div>
-              </div>
+            if (!cohort || !nation || !teamName) return;
+
+            const logo = nationLogos[nation] || '';
+            const nationClass = nationClasses[nation] || '';
+
+            const teamDiv = document.createElement('div');
+            teamDiv.className = 'team-container';
+            teamDiv.innerHTML = `
+              <img src="${logo}" class="nation-logo" alt="${nation} logo">
+              <div class="team-box ${nationClass}">${teamName}</div>
             `;
-            container.appendChild(team);
+
+            if (cohort === 'A') {
+              document.getElementById('cohortA').appendChild(teamDiv);
+            } else if (cohort === 'B') {
+              document.getElementById('cohortB').appendChild(teamDiv);
+            }
           });
         }
       });
