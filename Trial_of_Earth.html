@@ -9,7 +9,9 @@
     body {
       margin: 0;
       font-family: 'IM Fell English SC', serif;
-      background: url('b44c28ff-b10c-4b49-99bc-008fb41b3d87.png') no-repeat center top;
+      background-color: #f3f1ea;
+      background-image: url('b44c28ff-b10c-4b49-99bc-008fb41b3d87.png');
+      background-repeat: no-repeat;
       background-size: cover;
       background-attachment: fixed;
       color: #2d2d2d;
@@ -36,7 +38,7 @@
     .team-card {
       background: rgba(255, 255, 255, 0.95);
       border: 2px solid #555;
-      border-radius: 10px;
+      border-radius: 12px;
       width: 320px;
       padding: 20px;
       box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.25);
@@ -49,14 +51,13 @@
 
     .team-card h2 {
       margin-top: 0;
-      font-size: 24px;
+      font-size: 22px;
       color: #2e4d1f;
     }
 
-    .nation {
-      font-weight: bold;
-      font-size: 18px;
-      color: #444;
+    .nation-logo {
+      height: 40px;
+      margin-bottom: 10px;
     }
 
     .lineup div {
@@ -74,26 +75,38 @@
 </head>
 <body>
   <div class="banner">
-    🌱 Trial of Earth - Team Lineups 🌿
+    <img src="Earth_Logo.png" alt="Earth Logo" style="height: 50px; vertical-align: middle;">
+    Trial of Earth - Team Lineups
   </div>
 
   <div class="container" id="teamsContainer"></div>
 
-  <div class="footer">Made with 🪨 and ☁️ by QCMania | Data from Google Sheets</div>
+  <div class="footer">Made with 🪨 and ☁️ by QCMania | Auto-updating from Google Sheets</div>
 
   <script>
+    const nationLogos = {
+      "Air": "Air_Logo.png",
+      "Fire": "Fire_Logo.png",
+      "Earth": "Earth_Logo.png",
+      "Water": "Water_Logo.png"
+    };
+
     window.addEventListener('DOMContentLoaded', () => {
       Tabletop.init({
         key: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSBNIOSFv1qrGt5QWwZ0FDVCJDCl42s0e8-SzI1gQTGq1SD5eF5-Pm6Ru4q0PfA70PaEYhsMj84uSqx/pubhtml',
         simpleSheet: true,
+        wanted: ["Trial of Earth Teams"], // This is optional if your sheet has multiple tabs
         callback: function(data) {
           const container = document.getElementById('teamsContainer');
           data.forEach(row => {
+            const nation = row['Nation'];
+            const logoSrc = nationLogos[nation] || '';
+
             const team = document.createElement('div');
             team.className = 'team-card';
             team.innerHTML = `
+              <img src="${logoSrc}" class="nation-logo" alt="${nation} Logo">
               <h2>${row['Team Name']}</h2>
-              <div class="nation">Nation: ${row['Nation']}</div>
               <div class="lineup">
                 <div><strong>Keeper:</strong> ${row['Keeper']}</div>
                 <div><strong>Chaser 1:</strong> ${row['Chaser 1']}</div>
