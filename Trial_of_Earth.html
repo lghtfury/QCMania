@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Trial of Earth - QCMania</title>
+  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.3/tabletop.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'IM Fell English SC', serif;
+      background: url('b44c28ff-b10c-4b49-99bc-008fb41b3d87.png') no-repeat center top;
+      background-size: cover;
+      background-attachment: fixed;
+      color: #2d2d2d;
+    }
+
+    .banner {
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 40px 20px;
+      text-align: center;
+      color: white;
+      font-size: 48px;
+      text-shadow: 2px 2px 6px #000;
+      border-bottom: 4px solid #4e4e4e;
+    }
+
+    .container {
+      padding: 40px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+    }
+
+    .team-card {
+      background: rgba(255, 255, 255, 0.95);
+      border: 2px solid #555;
+      border-radius: 10px;
+      width: 320px;
+      padding: 20px;
+      box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.25);
+      transition: transform 0.2s;
+    }
+
+    .team-card:hover {
+      transform: scale(1.03);
+    }
+
+    .team-card h2 {
+      margin-top: 0;
+      font-size: 24px;
+      color: #2e4d1f;
+    }
+
+    .nation {
+      font-weight: bold;
+      font-size: 18px;
+      color: #444;
+    }
+
+    .lineup div {
+      padding: 4px 0;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 30px;
+      color: #aaa;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="banner">
+    🌱 Trial of Earth - Team Lineups 🌿
+  </div>
+
+  <div class="container" id="teamsContainer"></div>
+
+  <div class="footer">Made with 🪨 and ☁️ by QCMania | Data from Google Sheets</div>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      Tabletop.init({
+        key: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSBNIOSFv1qrGt5QWwZ0FDVCJDCl42s0e8-SzI1gQTGq1SD5eF5-Pm6Ru4q0PfA70PaEYhsMj84uSqx/pubhtml',
+        simpleSheet: true,
+        callback: function(data) {
+          const container = document.getElementById('teamsContainer');
+          data.forEach(row => {
+            const team = document.createElement('div');
+            team.className = 'team-card';
+            team.innerHTML = `
+              <h2>${row['Team Name']}</h2>
+              <div class="nation">Nation: ${row['Nation']}</div>
+              <div class="lineup">
+                <div><strong>Keeper:</strong> ${row['Keeper']}</div>
+                <div><strong>Chaser 1:</strong> ${row['Chaser 1']}</div>
+                <div><strong>Chaser 2:</strong> ${row['Chaser 2']}</div>
+                <div><strong>Chaser 3:</strong> ${row['Chaser 3']}</div>
+                <div><strong>Reserve:</strong> ${row['Reesrve']}</div>
+              </div>
+            `;
+            container.appendChild(team);
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
