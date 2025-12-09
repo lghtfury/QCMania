@@ -2,46 +2,52 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Beauxbatons’ Challenge – Wizard’s Jeopardy</title>
+  <title>Beauxbatons Challenge - Wizards Jeopardy</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
   <style>
     :root {
+      /* Beauxbatons palette */
       --bb-soft-blue: #a8d5ff;
       --bb-soft-blue-dark: #74a9e5;
       --bb-deep-blue: #1a3358;
       --bb-cream: #fbf3e2;
-      --bb-cream-deep: #f3e0bf;
       --bb-gold: #d9a441;
       --bb-gold-deep: #b37d16;
       --bb-text-dark: #22243a;
       --bb-text-soft: #3b4258;
     }
 
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: "Georgia", serif;
-      background: linear-gradient(to bottom, #102038, #050814);
+      background: #1a3358; /* solid Beauxbatons blue */
       color: #f9fafb;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      min-height: 100vh;
     }
 
     header {
       text-align: center;
       padding: 14px 8px 10px;
+      text-shadow: 0 0 10px rgba(0,0,0,0.6);
     }
 
     header h1 {
       margin: 0;
       font-size: 2rem;
       color: var(--bb-cream);
-      text-shadow: 0 0 10px rgba(0,0,0,0.6);
     }
 
     header p {
+      margin: 4px 0 0;
+      font-size: 0.9rem;
       opacity: 0.85;
     }
 
@@ -68,26 +74,43 @@
       cursor: pointer;
       font-size: 0.8rem;
       font-weight: 600;
+      color: #1f2937;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+
+    .top-bar button:hover {
+      filter: brightness(1.05);
     }
 
     .scoreboard {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 8px;
+      gap: 10px;
     }
 
     .team {
-      background: linear-gradient(to bottom,
-        rgba(248, 250, 252, 0.1),
-        rgba(15,23,42,0.85));
-      border-radius: 14px;
-      padding: 8px 12px;
-      min-width: 150px;
+      background: linear-gradient(
+        to bottom,
+        rgba(248,250,252,0.18),
+        rgba(15,23,42,0.9)
+      );
+      border-radius: 16px;
+      padding: 8px 12px 10px;
+      min-width: 160px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      border: 1px solid rgba(148,163,184,0.5);
+      border: 1px solid rgba(148,163,184,0.6);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.45);
+    }
+
+    .team-crest {
+      width: 56px;
+      height: 56px;
+      object-fit: contain;
+      margin-bottom: 4px;
+      filter: drop-shadow(0 0 6px rgba(0,0,0,0.7));
     }
 
     .team input {
@@ -98,6 +121,12 @@
       text-align: center;
       margin-bottom: 4px;
       font-weight: 600;
+      width: 100%;
+    }
+
+    .team input:focus {
+      outline: none;
+      border-bottom-color: var(--bb-gold);
     }
 
     .score {
@@ -105,6 +134,12 @@
       color: var(--bb-gold);
       margin-bottom: 6px;
       font-weight: bold;
+      text-shadow: 0 0 6px rgba(0,0,0,0.8);
+    }
+
+    .score-controls {
+      display: flex;
+      gap: 4px;
     }
 
     .score-controls button {
@@ -113,16 +148,27 @@
       border: none;
       cursor: pointer;
       font-size: 0.8rem;
+      font-weight: 600;
+      font-family: inherit;
     }
 
     .add { background: #15803d; color: white; }
     .sub { background: #b91c1c; color: white; }
 
+    .board-wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      padding: 6px 0 10px;
+      overflow-x: auto;
+    }
+
     #board {
       display: grid;
       gap: 4px;
       max-width: 1200px;
-      margin: 0 auto;
+      width: 100%;
     }
 
     .category-header {
@@ -133,6 +179,10 @@
       padding: 10px 6px;
       font-weight: 700;
       text-align: center;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.7) inset,
+        0 4px 10px rgba(0,0,0,0.4);
+      word-wrap: break-word;
     }
 
     .tile {
@@ -147,12 +197,33 @@
       color: var(--bb-gold-deep);
       text-align: center;
       cursor: pointer;
+      min-height: 72px;
+      box-shadow: 0 3px 7px rgba(0,0,0,0.45);
+      transition: transform 0.07s ease, box-shadow 0.07s ease, filter 0.07s ease;
+      text-shadow: 0 0 4px rgba(255,255,255,0.5);
+    }
+
+    .tile:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.65);
+      filter: brightness(1.03);
     }
 
     .tile.used {
-      background: #b7bfd9;
+      background: #cbd5f5;
       color: #4b5563;
       cursor: default;
+      text-shadow: none;
+      box-shadow: none;
+      transform: none;
+      filter: none;
+    }
+
+    .status {
+      text-align: center;
+      font-size: 0.85rem;
+      opacity: 0.9;
+      min-height: 1.2em;
     }
 
     .modal-backdrop {
@@ -162,300 +233,486 @@
       display: none;
       align-items: center;
       justify-content: center;
+      z-index: 40;
     }
 
-    .modal-backdrop.active { display: flex; }
+    .modal-backdrop.active {
+      display: flex;
+    }
 
     .modal {
-      background: radial-gradient(circle,
-        #ffffff,
-        #f5e6cd);
+      background: radial-gradient(circle, #ffffff, #f5e6cd);
       border-radius: 18px;
-      padding: 14px 16px;
       border: 4px solid var(--bb-gold);
+      padding: 14px 16px 16px;
       max-width: 800px;
       width: 96%;
+      color: var(--bb-text-dark);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.85);
+      position: relative;
+    }
+
+    .modal::before {
+      content: "";
+      position: absolute;
+      inset: 4px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.8);
+      pointer-events: none;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--bb-text-soft);
+    }
+
+    .modal-header span {
+      font-weight: 600;
+      color: var(--bb-gold-deep);
+    }
+
+    .modal-question {
+      font-size: 1.02rem;
+      line-height: 1.4;
+      margin-top: 4px;
+    }
+
+    .modal-image {
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .modal-image img {
+      max-width: 100%;
+      max-height: 260px;
+      border-radius: 12px;
+      border: 2px solid rgba(148,163,184,0.8);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     }
 
     .modal-answer {
-      margin-top: 12px;
+      margin-top: 10px;
       padding: 8px 10px;
-      background: #fff8;
-      border: 1px dashed #ccc;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.92);
+      border: 1px dashed rgba(148,163,184,0.9);
       display: none;
+      font-size: 0.96rem;
+    }
+
+    .modal-footer {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .team-award-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+    }
+
+    .team-award-row button {
+      border-radius: 999px;
+      border: 1px solid var(--bb-gold-deep);
+      background: radial-gradient(circle at top, var(--bb-gold), var(--bb-gold-deep));
+      color: #1f2937;
+      padding: 5px 12px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      min-width: 130px;
+    }
+
+    .modal-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: space-between;
+    }
+
+    .modal-controls button {
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      background: #111827;
+      color: #e5e7eb;
+      padding: 5px 12px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      font-family: inherit;
+    }
+
+    .modal-controls button.primary {
+      background: var(--bb-deep-blue);
+      border-color: #020617;
+    }
+
+    .modal-controls button.danger {
+      background: #b91c1c;
+      border-color: #7f1d1d;
+    }
+
+    @media (max-width: 768px) {
+      header h1 { font-size: 1.5rem; }
+      .tile { font-size: 1.15rem; min-height: 60px; }
+      .category-header { font-size: 0.9rem; }
     }
   </style>
 </head>
-
 <body>
+  <header>
+    <h1>Beauxbatons Challenge - Wizards Jeopardy</h1>
+    <p>Questions and categories are loaded live from Google Sheets</p>
+  </header>
 
-<header>
-  <h1>Beauxbatons’ Challenge – Wizard’s Jeopardy</h1>
-  <p>Live Questions from Your Google Sheet</p>
-</header>
+  <div class="layout">
+    <div class="top-bar">
+      <button id="reload-data">Reload questions</button>
+      <button id="reset-board">Reset board</button>
+      <button id="reset-scores">Reset scores</button>
+    </div>
 
-<div class="layout">
+    <div class="scoreboard">
+      <div class="team" data-team="0">
+        <img src="Images/Beauxbaton.png" alt="Beauxbatons crest" class="team-crest">
+        <input type="text" value="Beauxbatons" />
+        <div class="score" id="score-0">0</div>
+        <div class="score-controls">
+          <button class="sub" data-team="0">-100</button>
+          <button class="add" data-team="0">+100</button>
+        </div>
+      </div>
 
-  <div class="top-bar">
-    <button id="reload-data">Reload questions</button>
-    <button id="reset-board">Reset board</button>
-    <button id="reset-scores">Reset scores</button>
+      <div class="team" data-team="1">
+        <img src="Images/Hogwarts.png" alt="Hogwarts crest" class="team-crest">
+        <input type="text" value="Hogwarts" />
+        <div class="score" id="score-1">0</div>
+        <div class="score-controls">
+          <button class="sub" data-team="1">-100</button>
+          <button class="add" data-team="1">+100</button>
+        </div>
+      </div>
+
+      <div class="team" data-team="2">
+        <img src="Images/Durmstrang.png" alt="Durmstrang crest" class="team-crest">
+        <input type="text" value="Durmstrang" />
+        <div class="score" id="score-2">0</div>
+        <div class="score-controls">
+          <button class="sub" data-team="2">-100</button>
+          <button class="add" data-team="2">+100</button>
+        </div>
+      </div>
+
+      <div class="team" data-team="3">
+        <img src="Images/Ilvermorny.png" alt="Ilvermorny crest" class="team-crest">
+        <input type="text" value="Ilvermorny" />
+        <div class="score" id="score-3">0</div>
+        <div class="score-controls">
+          <button class="sub" data-team="3">-100</button>
+          <button class="add" data-team="3">+100</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="board-wrapper">
+      <div id="board"></div>
+    </div>
+
+    <div class="status" id="status"></div>
   </div>
 
-  <!-- UPDATED TEAM NAMES -->
-  <div class="scoreboard">
-    <div class="team" data-team="0">
-      <input type="text" value="Beauxbatons" />
-      <div class="score" id="score-0">0</div>
-      <div class="score-controls">
-        <button class="sub" data-team="0">-100</button>
-        <button class="add" data-team="0">+100</button>
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modal-category">Category</h2>
+        <span id="modal-value">0</span>
       </div>
-    </div>
+      <div class="modal-question" id="modal-question"></div>
 
-    <div class="team" data-team="1">
-      <input type="text" value="Hogwarts" />
-      <div class="score" id="score-1">0</div>
-      <div class="score-controls">
-        <button class="sub" data-team="1">-100</button>
-        <button class="add" data-team="1">+100</button>
+      <div class="modal-image" id="modal-image" style="display:none;">
+        <img id="modal-image-tag" src="" alt="Question image" />
       </div>
-    </div>
 
-    <div class="team" data-team="2">
-      <input type="text" value="Durmstrang" />
-      <div class="score" id="score-2">0</div>
-      <div class="score-controls">
-        <button class="sub" data-team="2">-100</button>
-        <button class="add" data-team="2">+100</button>
+      <div class="modal-answer" id="modal-answer">
+        <strong>Answer: </strong><span id="modal-answer-text"></span>
       </div>
-    </div>
 
-    <div class="team" data-team="3">
-      <input type="text" value="Ilvermorny" />
-      <div class="score" id="score-3">0</div>
-      <div class="score-controls">
-        <button class="sub" data-team="3">-100</button>
-        <button class="add" data-team="3">+100</button>
+      <div class="modal-footer">
+        <div class="team-award-row" id="award-buttons"></div>
+        <div class="modal-controls">
+          <button id="show-answer" class="primary">Show answer</button>
+          <button id="no-points">No points</button>
+          <button id="close-modal" class="danger">Close</button>
+        </div>
       </div>
     </div>
   </div>
 
-  <div id="board"></div>
+  <script>
+    const CSV_URL =
+      "https://docs.google.com/spreadsheets/d/e/2PACX-1vTp9jiAXHLSXP4d983ipXv0fKZheaaJLSt4OYWgLookJisCeWVuMwZhXKi7VFpkx-SsSVhNyyL95xO3/pub?gid=0&single=true&output=csv";
 
-  <div id="status" style="text-align:center; opacity:0.8;"></div>
+    let questionsByCategory = [];
+    let valuesSorted = [];
+    const scores = [0, 0, 0, 0];
 
-</div>
+    const board = document.getElementById("board");
+    const statusEl = document.getElementById("status");
 
-<!-- MODAL -->
-<div class="modal-backdrop" id="modal-backdrop">
-  <div class="modal">
-    <h2 id="modal-category"></h2>
-    <strong id="modal-value"></strong>
-    <p id="modal-question"></p>
+    const backdrop = document.getElementById("modal-backdrop");
+    const modalCategory = document.getElementById("modal-category");
+    const modalValue = document.getElementById("modal-value");
+    const modalQuestion = document.getElementById("modal-question");
+    const modalAnswer = document.getElementById("modal-answer");
+    const modalAnswerText = document.getElementById("modal-answer-text");
+    const modalImageWrapper = document.getElementById("modal-image");
+    const modalImageTag = document.getElementById("modal-image-tag");
+    const awardButtons = document.getElementById("award-buttons");
 
-    <div id="modal-image" style="display:none; text-align:center;">
-      <img id="modal-image-tag" src="" style="max-width:90%; max-height:260px; border-radius:12px;">
-    </div>
+    const showAnswerBtn = document.getElementById("show-answer");
+    const noPointsBtn = document.getElementById("no-points");
+    const closeModalBtn = document.getElementById("close-modal");
+    const reloadDataBtn = document.getElementById("reload-data");
+    const resetBoardBtn = document.getElementById("reset-board");
+    const resetScoresBtn = document.getElementById("reset-scores");
 
-    <div class="modal-answer" id="modal-answer">
-      <strong>Answer:</strong> <span id="modal-answer-text"></span>
-    </div>
+    let currentTile = null;
+    let currentQuestion = null;
 
-    <div style="margin-top:12px;">
-      <button id="show-answer">Show answer</button>
-      <button id="no-points">No points</button>
-      <button id="close-modal">Close</button>
-    </div>
+    function setStatus(msg) {
+      statusEl.textContent = msg || "";
+    }
 
-    <div id="award-buttons" style="margin-top:10px; display:flex; flex-wrap:wrap; gap:6px;"></div>
-
-  </div>
-</div>
-
-<script>
-  const CSV_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTp9jiAXHLSXP4d983ipXv0fKZheaaJLSt4OYWgLookJisCeWVuMwZhXKi7VFpkx-SsSVhNyyL95xO3/pub?gid=0&single=true&output=csv";
-
-  let questionsByCategory = [];
-  let valuesSorted = [];
-  let scores = [0,0,0,0];
-
-  const board = document.getElementById("board");
-
-  const backdrop = document.getElementById("modal-backdrop");
-  const modalCategory = document.getElementById("modal-category");
-  const modalValue = document.getElementById("modal-value");
-  const modalQuestion = document.getElementById("modal-question");
-  const modalAnswer = document.getElementById("modal-answer");
-  const modalAnswerText = document.getElementById("modal-answer-text");
-  const modalImage = document.getElementById("modal-image");
-  const modalImageTag = document.getElementById("modal-image-tag");
-
-  let currentTile = null;
-  let currentQuestion = null;
-
-  async function loadCSV() {
-    return new Promise((resolve, reject) => {
-      Papa.parse(CSV_URL, {
-        download: true,
-        header: true,
-        complete: res => resolve(res.data),
-        error: err => reject(err)
+    function fetchQuestions() {
+      setStatus("Loading questions from Google Sheets...");
+      return new Promise((resolve, reject) => {
+        Papa.parse(CSV_URL, {
+          download: true,
+          header: true,
+          complete: result => {
+            const rows = result.data.filter(r => r.Category && r.Value);
+            resolve(rows);
+          },
+          error: err => reject(err)
+        });
       });
-    });
-  }
+    }
 
-  function processRows(rows) {
-    const map = new Map();
-    const values = new Set();
+    function processRows(rows) {
+      const categoryMap = new Map();
+      const valueSet = new Set();
 
-    rows.forEach(r => {
-      if (!r.Category || !r.Value) return;
+      rows.forEach(row => {
+        const cat = row.Category.trim();
+        const value = parseInt(row.Value, 10) || 0;
+        const question = (row.Question || "").trim();
+        const answer = (row.Answer || "").trim();
+        const image = (row["Image (Optional)"] || row.Image || "").trim();
 
-      const cat = r.Category.trim();
-      const val = parseInt(r.Value);
-      const q = (r.Question || "").trim();
-      const a = (r.Answer || "").trim();
-      const img = (r["Image (Optional)"] || "").trim();
+        if (!cat || !value || !question) return;
 
-      if (!map.has(cat)) map.set(cat, []);
-      map.get(cat).push({value: val, question: q, answer: a, image: img});
-      values.add(val);
-    });
-
-    questionsByCategory = Array.from(map.entries()).map(([c, qs]) => ({
-      category: c,
-      questions: qs.sort((a,b)=>a.value-b.value)
-    }));
-
-    valuesSorted = Array.from(values).sort((a,b)=>a-b);
-  }
-
-  function buildBoard() {
-    board.innerHTML = "";
-    board.style.gridTemplateColumns = `repeat(${questionsByCategory.length},1fr)`;
-
-    // Headers
-    questionsByCategory.forEach(col => {
-      const h = document.createElement("div");
-      h.className = "category-header";
-      h.textContent = col.category;
-      board.appendChild(h);
-    });
-
-    // Tiles
-    valuesSorted.forEach(val => {
-      questionsByCategory.forEach((col, i) => {
-        const tile = document.createElement("div");
-        tile.className = "tile";
-
-        const q = col.questions.find(x => x.value === val);
-        if (!q) {
-          tile.classList.add("used");
-          board.appendChild(tile);
-          return;
+        if (!categoryMap.has(cat)) {
+          categoryMap.set(cat, []);
         }
-
-        tile.textContent = val;
-        tile.dataset.col = i;
-        tile.dataset.val = val;
-        tile.onclick = () => openQuestion(tile, q, col.category);
-        board.appendChild(tile);
+        categoryMap.get(cat).push({ value, question, answer, image });
+        valueSet.add(value);
       });
-    });
-  }
 
-  function openQuestion(tile, q, category) {
-    currentTile = tile;
-    currentQuestion = q;
+      questionsByCategory = Array.from(categoryMap.entries()).map(([category, qs]) => {
+        qs.sort((a, b) => a.value - b.value);
+        return { category, questions: qs };
+      });
 
-    modalCategory.textContent = category;
-    modalValue.textContent = q.value;
-    modalQuestion.textContent = q.question;
-    modalAnswer.style.display = "none";
-    modalAnswerText.textContent = q.answer;
-
-    if (q.image) {
-      modalImage.style.display = "block";
-      modalImageTag.src = q.image;
-    } else {
-      modalImage.style.display = "none";
+      valuesSorted = Array.from(valueSet).sort((a, b) => a - b);
     }
 
-    buildAwardButtons(q.value);
+    function buildBoard() {
+      board.innerHTML = "";
 
-    backdrop.classList.add("active");
-  }
+      if (!questionsByCategory.length) {
+        setStatus("No questions found. Check the sheet.");
+        return;
+      }
 
-  function buildAwardButtons(value) {
-    const row = document.getElementById("award-buttons");
-    row.innerHTML = "";
+      board.style.gridTemplateColumns = `repeat(${questionsByCategory.length}, 1fr)`;
 
-    document.querySelectorAll(".team").forEach((t, i) => {
-      const name = t.querySelector("input").value || `Team ${i+1}`;
-      const b = document.createElement("button");
-      b.textContent = `${name} +${value}`;
-      b.onclick = () => {
-        scores[i] += value;
-        updateScores();
-        markUsed();
-        closeModal();
-      };
-      row.appendChild(b);
-    });
-  }
+      questionsByCategory.forEach(col => {
+        const header = document.createElement("div");
+        header.className = "category-header";
+        header.textContent = col.category;
+        board.appendChild(header);
+      });
 
-  function markUsed() {
-    if (currentTile) {
-      currentTile.classList.add("used");
-      currentTile.textContent = "";
+      valuesSorted.forEach(value => {
+        questionsByCategory.forEach((col, colIndex) => {
+          const tile = document.createElement("div");
+          tile.className = "tile";
+
+          const q = col.questions.find(q => q.value === value);
+
+          if (q) {
+            tile.textContent = value;
+            tile.dataset.col = colIndex;
+            tile.dataset.value = value;
+            tile.addEventListener("click", onTileClick);
+          } else {
+            tile.classList.add("used");
+            tile.textContent = "";
+          }
+
+          board.appendChild(tile);
+        });
+      });
+
+      setStatus("Board ready.");
     }
-  }
 
-  function closeModal() {
-    backdrop.classList.remove("active");
-  }
+    function updateScores() {
+      scores.forEach((val, i) => {
+        const el = document.getElementById(`score-${i}`);
+        if (el) el.textContent = val;
+      });
+    }
 
-  document.getElementById("show-answer").onclick = () => {
-    modalAnswer.style.display =
-      modalAnswer.style.display === "none" ? "block" : "none";
-  };
-
-  document.getElementById("no-points").onclick = () => {
-    markUsed();
-    closeModal();
-  };
-
-  document.getElementById("close-modal").onclick = closeModal;
-
-  function updateScores() {
-    scores.forEach((s,i)=>{
-      document.getElementById(`score-${i}`).textContent = s;
-    });
-  }
-
-  document.getElementById("reset-scores").onclick = () => {
-    if (confirm("Reset all scores?")) {
-      scores = [0,0,0,0];
+    function changeScore(teamIndex, delta) {
+      scores[teamIndex] += delta;
       updateScores();
     }
-  };
 
-  document.getElementById("reset-board").onclick = () => {
-    if (confirm("Reset all tiles?")) buildBoard();
-  };
+    document.querySelectorAll(".score-controls button").forEach(button => {
+      button.addEventListener("click", () => {
+        const teamIndex = parseInt(button.dataset.team, 10);
+        if (button.classList.contains("add")) {
+          changeScore(teamIndex, 100);
+        } else {
+          changeScore(teamIndex, -100);
+        }
+      });
+    });
 
-  document.getElementById("reload-data").onclick = init;
+    function onTileClick(e) {
+      const tile = e.currentTarget;
+      if (tile.classList.contains("used")) return;
 
-  async function init() {
-    const rows = await loadCSV();
-    processRows(rows);
-    buildBoard();
+      const colIndex = parseInt(tile.dataset.col, 10);
+      const value = parseInt(tile.dataset.value, 10);
+
+      const col = questionsByCategory[colIndex];
+      if (!col) return;
+      const q = col.questions.find(q => q.value === value);
+      if (!q) return;
+
+      currentTile = tile;
+      currentQuestion = q;
+
+      modalCategory.textContent = col.category;
+      modalValue.textContent = value;
+      modalQuestion.textContent = q.question;
+      modalAnswerText.textContent = q.answer || "(No answer set)";
+      modalAnswer.style.display = "none";
+
+      if (q.image) {
+        modalImageWrapper.style.display = "block";
+        modalImageTag.src = q.image;
+      } else {
+        modalImageWrapper.style.display = "none";
+        modalImageTag.src = "";
+      }
+
+      buildAwardButtons(value);
+      backdrop.classList.add("active");
+    }
+
+    function buildAwardButtons(value) {
+      awardButtons.innerHTML = "";
+      const teamCards = document.querySelectorAll(".team");
+
+      teamCards.forEach((card, index) => {
+        const nameInput = card.querySelector("input");
+        const teamName = nameInput.value || `Team ${index + 1}`;
+
+        const button = document.createElement("button");
+        button.textContent = `${teamName} correct (+${value})`;
+        button.addEventListener("click", () => {
+          changeScore(index, value);
+          markTileUsed();
+          closeModal();
+        });
+        awardButtons.appendChild(button);
+      });
+    }
+
+    function markTileUsed() {
+      if (currentTile) {
+        currentTile.classList.add("used");
+        currentTile.textContent = "";
+      }
+    }
+
+    function closeModal() {
+      backdrop.classList.remove("active");
+    }
+
+    showAnswerBtn.addEventListener("click", () => {
+      if (modalAnswer.style.display === "none") {
+        modalAnswer.style.display = "block";
+      } else {
+        modalAnswer.style.display = "none";
+      }
+    });
+
+    noPointsBtn.addEventListener("click", () => {
+      markTileUsed();
+      closeModal();
+    });
+
+    closeModalBtn.addEventListener("click", () => {
+      closeModal();
+    });
+
+    reloadDataBtn.addEventListener("click", () => {
+      loadEverything(true);
+    });
+
+    resetBoardBtn.addEventListener("click", () => {
+      if (confirm("Reset all tiles (scores stay)?")) {
+        buildBoard();
+      }
+    });
+
+    resetScoresBtn.addEventListener("click", () => {
+      if (confirm("Reset all scores to zero?")) {
+        for (let i = 0; i < scores.length; i++) scores[i] = 0;
+        updateScores();
+      }
+    });
+
+    async function loadEverything(fromButton) {
+      try {
+        if (fromButton) setStatus("Reloading questions...");
+        const rows = await fetchQuestions();
+        processRows(rows);
+        buildBoard();
+      } catch (e) {
+        console.error(e);
+        setStatus("Error loading questions. Check console.");
+      }
+    }
+
+    loadEverything(false);
     updateScores();
-  }
-
-  init();
-</script>
+  </script>
 </body>
 </html>
