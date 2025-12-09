@@ -1,37 +1,461 @@
-<div class="scoreboard">
-  <div class="team" data-team="0">
-    <input type="text" value="Beauxbatons" />
-    <div class="score" id="score-0">0</div>
-    <div class="score-controls">
-      <button class="sub" data-team="0">-100</button>
-      <button class="add" data-team="0">+100</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Beauxbatons’ Challenge – Wizard’s Jeopardy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+  <style>
+    :root {
+      --bb-soft-blue: #a8d5ff;
+      --bb-soft-blue-dark: #74a9e5;
+      --bb-deep-blue: #1a3358;
+      --bb-cream: #fbf3e2;
+      --bb-cream-deep: #f3e0bf;
+      --bb-gold: #d9a441;
+      --bb-gold-deep: #b37d16;
+      --bb-text-dark: #22243a;
+      --bb-text-soft: #3b4258;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Georgia", serif;
+      background: linear-gradient(to bottom, #102038, #050814);
+      color: #f9fafb;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      text-align: center;
+      padding: 14px 8px 10px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+      color: var(--bb-cream);
+      text-shadow: 0 0 10px rgba(0,0,0,0.6);
+    }
+
+    header p {
+      opacity: 0.85;
+    }
+
+    .layout {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+      padding: 10px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .top-bar button {
+      border-radius: 999px;
+      border: 1px solid var(--bb-gold-deep);
+      background: radial-gradient(circle at top, var(--bb-gold), var(--bb-gold-deep));
+      padding: 4px 14px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .scoreboard {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .team {
+      background: linear-gradient(to bottom,
+        rgba(248, 250, 252, 0.1),
+        rgba(15,23,42,0.85));
+      border-radius: 14px;
+      padding: 8px 12px;
+      min-width: 150px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border: 1px solid rgba(148,163,184,0.5);
+    }
+
+    .team input {
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(148,163,184,0.8);
+      color: #f9fafb;
+      text-align: center;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .score {
+      font-size: 1.4rem;
+      color: var(--bb-gold);
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    .score-controls button {
+      border-radius: 999px;
+      padding: 3px 7px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
+    .add { background: #15803d; color: white; }
+    .sub { background: #b91c1c; color: white; }
+
+    #board {
+      display: grid;
+      gap: 4px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .category-header {
+      background: var(--bb-cream);
+      border-radius: 26px;
+      border: 3px solid var(--bb-gold);
+      color: var(--bb-text-dark);
+      padding: 10px 6px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .tile {
+      background: radial-gradient(circle at top,
+        var(--bb-soft-blue),
+        var(--bb-soft-blue-dark));
+      border-radius: 10px;
+      border: 2px solid var(--bb-gold);
+      padding: 10px 6px;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--bb-gold-deep);
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .tile.used {
+      background: #b7bfd9;
+      color: #4b5563;
+      cursor: default;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(5,10,25,0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-backdrop.active { display: flex; }
+
+    .modal {
+      background: radial-gradient(circle,
+        #ffffff,
+        #f5e6cd);
+      border-radius: 18px;
+      padding: 14px 16px;
+      border: 4px solid var(--bb-gold);
+      max-width: 800px;
+      width: 96%;
+    }
+
+    .modal-answer {
+      margin-top: 12px;
+      padding: 8px 10px;
+      background: #fff8;
+      border: 1px dashed #ccc;
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>Beauxbatons’ Challenge – Wizard’s Jeopardy</h1>
+  <p>Live Questions from Your Google Sheet</p>
+</header>
+
+<div class="layout">
+
+  <div class="top-bar">
+    <button id="reload-data">Reload questions</button>
+    <button id="reset-board">Reset board</button>
+    <button id="reset-scores">Reset scores</button>
+  </div>
+
+  <!-- UPDATED TEAM NAMES -->
+  <div class="scoreboard">
+    <div class="team" data-team="0">
+      <input type="text" value="Beauxbatons" />
+      <div class="score" id="score-0">0</div>
+      <div class="score-controls">
+        <button class="sub" data-team="0">-100</button>
+        <button class="add" data-team="0">+100</button>
+      </div>
+    </div>
+
+    <div class="team" data-team="1">
+      <input type="text" value="Hogwarts" />
+      <div class="score" id="score-1">0</div>
+      <div class="score-controls">
+        <button class="sub" data-team="1">-100</button>
+        <button class="add" data-team="1">+100</button>
+      </div>
+    </div>
+
+    <div class="team" data-team="2">
+      <input type="text" value="Durmstrang" />
+      <div class="score" id="score-2">0</div>
+      <div class="score-controls">
+        <button class="sub" data-team="2">-100</button>
+        <button class="add" data-team="2">+100</button>
+      </div>
+    </div>
+
+    <div class="team" data-team="3">
+      <input type="text" value="Ilvermorny" />
+      <div class="score" id="score-3">0</div>
+      <div class="score-controls">
+        <button class="sub" data-team="3">-100</button>
+        <button class="add" data-team="3">+100</button>
+      </div>
     </div>
   </div>
 
-  <div class="team" data-team="1">
-    <input type="text" value="Hogwarts" />
-    <div class="score" id="score-1">0</div>
-    <div class="score-controls">
-      <button class="sub" data-team="1">-100</button>
-      <button class="add" data-team="1">+100</button>
-    </div>
-  </div>
+  <div id="board"></div>
 
-  <div class="team" data-team="2">
-    <input type="text" value="Durmstrang" />
-    <div class="score" id="score-2">0</div>
-    <div class="score-controls">
-      <button class="sub" data-team="2">-100</button>
-      <button class="add" data-team="2">+100</button>
-    </div>
-  </div>
+  <div id="status" style="text-align:center; opacity:0.8;"></div>
 
-  <div class="team" data-team="3">
-    <input type="text" value="Ilvermorny" />
-    <div class="score" id="score-3">0</div>
-    <div class="score-controls">
-      <button class="sub" data-team="3">-100</button>
-      <button class="add" data-team="3">+100</button>
+</div>
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal">
+    <h2 id="modal-category"></h2>
+    <strong id="modal-value"></strong>
+    <p id="modal-question"></p>
+
+    <div id="modal-image" style="display:none; text-align:center;">
+      <img id="modal-image-tag" src="" style="max-width:90%; max-height:260px; border-radius:12px;">
     </div>
+
+    <div class="modal-answer" id="modal-answer">
+      <strong>Answer:</strong> <span id="modal-answer-text"></span>
+    </div>
+
+    <div style="margin-top:12px;">
+      <button id="show-answer">Show answer</button>
+      <button id="no-points">No points</button>
+      <button id="close-modal">Close</button>
+    </div>
+
+    <div id="award-buttons" style="margin-top:10px; display:flex; flex-wrap:wrap; gap:6px;"></div>
+
   </div>
 </div>
+
+<script>
+  const CSV_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTp9jiAXHLSXP4d983ipXv0fKZheaaJLSt4OYWgLookJisCeWVuMwZhXKi7VFpkx-SsSVhNyyL95xO3/pub?gid=0&single=true&output=csv";
+
+  let questionsByCategory = [];
+  let valuesSorted = [];
+  let scores = [0,0,0,0];
+
+  const board = document.getElementById("board");
+
+  const backdrop = document.getElementById("modal-backdrop");
+  const modalCategory = document.getElementById("modal-category");
+  const modalValue = document.getElementById("modal-value");
+  const modalQuestion = document.getElementById("modal-question");
+  const modalAnswer = document.getElementById("modal-answer");
+  const modalAnswerText = document.getElementById("modal-answer-text");
+  const modalImage = document.getElementById("modal-image");
+  const modalImageTag = document.getElementById("modal-image-tag");
+
+  let currentTile = null;
+  let currentQuestion = null;
+
+  async function loadCSV() {
+    return new Promise((resolve, reject) => {
+      Papa.parse(CSV_URL, {
+        download: true,
+        header: true,
+        complete: res => resolve(res.data),
+        error: err => reject(err)
+      });
+    });
+  }
+
+  function processRows(rows) {
+    const map = new Map();
+    const values = new Set();
+
+    rows.forEach(r => {
+      if (!r.Category || !r.Value) return;
+
+      const cat = r.Category.trim();
+      const val = parseInt(r.Value);
+      const q = (r.Question || "").trim();
+      const a = (r.Answer || "").trim();
+      const img = (r["Image (Optional)"] || "").trim();
+
+      if (!map.has(cat)) map.set(cat, []);
+      map.get(cat).push({value: val, question: q, answer: a, image: img});
+      values.add(val);
+    });
+
+    questionsByCategory = Array.from(map.entries()).map(([c, qs]) => ({
+      category: c,
+      questions: qs.sort((a,b)=>a.value-b.value)
+    }));
+
+    valuesSorted = Array.from(values).sort((a,b)=>a-b);
+  }
+
+  function buildBoard() {
+    board.innerHTML = "";
+    board.style.gridTemplateColumns = `repeat(${questionsByCategory.length},1fr)`;
+
+    // Headers
+    questionsByCategory.forEach(col => {
+      const h = document.createElement("div");
+      h.className = "category-header";
+      h.textContent = col.category;
+      board.appendChild(h);
+    });
+
+    // Tiles
+    valuesSorted.forEach(val => {
+      questionsByCategory.forEach((col, i) => {
+        const tile = document.createElement("div");
+        tile.className = "tile";
+
+        const q = col.questions.find(x => x.value === val);
+        if (!q) {
+          tile.classList.add("used");
+          board.appendChild(tile);
+          return;
+        }
+
+        tile.textContent = val;
+        tile.dataset.col = i;
+        tile.dataset.val = val;
+        tile.onclick = () => openQuestion(tile, q, col.category);
+        board.appendChild(tile);
+      });
+    });
+  }
+
+  function openQuestion(tile, q, category) {
+    currentTile = tile;
+    currentQuestion = q;
+
+    modalCategory.textContent = category;
+    modalValue.textContent = q.value;
+    modalQuestion.textContent = q.question;
+    modalAnswer.style.display = "none";
+    modalAnswerText.textContent = q.answer;
+
+    if (q.image) {
+      modalImage.style.display = "block";
+      modalImageTag.src = q.image;
+    } else {
+      modalImage.style.display = "none";
+    }
+
+    buildAwardButtons(q.value);
+
+    backdrop.classList.add("active");
+  }
+
+  function buildAwardButtons(value) {
+    const row = document.getElementById("award-buttons");
+    row.innerHTML = "";
+
+    document.querySelectorAll(".team").forEach((t, i) => {
+      const name = t.querySelector("input").value || `Team ${i+1}`;
+      const b = document.createElement("button");
+      b.textContent = `${name} +${value}`;
+      b.onclick = () => {
+        scores[i] += value;
+        updateScores();
+        markUsed();
+        closeModal();
+      };
+      row.appendChild(b);
+    });
+  }
+
+  function markUsed() {
+    if (currentTile) {
+      currentTile.classList.add("used");
+      currentTile.textContent = "";
+    }
+  }
+
+  function closeModal() {
+    backdrop.classList.remove("active");
+  }
+
+  document.getElementById("show-answer").onclick = () => {
+    modalAnswer.style.display =
+      modalAnswer.style.display === "none" ? "block" : "none";
+  };
+
+  document.getElementById("no-points").onclick = () => {
+    markUsed();
+    closeModal();
+  };
+
+  document.getElementById("close-modal").onclick = closeModal;
+
+  function updateScores() {
+    scores.forEach((s,i)=>{
+      document.getElementById(`score-${i}`).textContent = s;
+    });
+  }
+
+  document.getElementById("reset-scores").onclick = () => {
+    if (confirm("Reset all scores?")) {
+      scores = [0,0,0,0];
+      updateScores();
+    }
+  };
+
+  document.getElementById("reset-board").onclick = () => {
+    if (confirm("Reset all tiles?")) buildBoard();
+  };
+
+  document.getElementById("reload-data").onclick = init;
+
+  async function init() {
+    const rows = await loadCSV();
+    processRows(rows);
+    buildBoard();
+    updateScores();
+  }
+
+  init();
+</script>
+</body>
+</html>
