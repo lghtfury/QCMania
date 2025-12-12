@@ -426,36 +426,14 @@
       gap: 8px;
     }
 
-    .modal-header {
-      flex: 1;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .modal-header h2 {
-      margin: 0;
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: var(--bb-text-soft);
-      font-family: "Cinzel", "Georgia", serif;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-
-    .modal-header span {
-      font-weight: 600;
-      color: var(--bb-gold-deep);
-    }
-
     .modal-question {
-      font-size: 1.02rem;
-      line-height: 1.4;
+      font-size: 1.6rem;
+      line-height: 1.45;
       margin-top: 4px;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
       text-align: center;
+      font-family: "Cardo", "Georgia", serif;
+      color: var(--bb-text-soft);
     }
 
     .modal-image {
@@ -693,11 +671,6 @@
           <button id="no-points">No points</button>
         </div>
 
-        <div class="modal-header">
-          <h2 id="modal-category">Category</h2>
-          <span id="modal-value">0</span>
-        </div>
-
         <div class="modal-timer">
           <span class="timer-label">Time left:</span>
           <span id="timer-display">60</span>
@@ -736,8 +709,6 @@
     const statusEl = document.getElementById("status");
 
     const backdrop = document.getElementById("modal-backdrop");
-    const modalCategory = document.getElementById("modal-category");
-    const modalValue = document.getElementById("modal-value");
     const modalQuestion = document.getElementById("modal-question");
     const modalAnswer = document.getElementById("modal-answer");
     const modalAnswerText = document.getElementById("modal-answer-text");
@@ -766,6 +737,7 @@
       statusEl.textContent = msg || "";
     }
 
+    // ===== TIMER =====
     function updateTimerDisplay() {
       if (!timerDisplay) return;
       timerDisplay.textContent = timerRemaining;
@@ -801,6 +773,7 @@
       updateTimerDisplay();
     }
 
+    // ===== CSV / BOARD =====
     function fetchQuestions() {
       setStatus("Loading questions from Google Sheets...");
       return new Promise((resolve, reject) => {
@@ -897,6 +870,7 @@
       updateScores();
     }
 
+    // ===== MODAL LOGIC =====
     function onTileClick(e) {
       const tile = e.currentTarget;
       if (tile.classList.contains("used")) return;
@@ -912,8 +886,6 @@
       currentTile = tile;
       currentQuestion = q;
 
-      modalCategory.textContent = col.category;
-      modalValue.textContent = value;
       modalQuestion.textContent = q.question;
       modalAnswerText.textContent = q.answer || "(No answer set)";
       modalAnswer.style.display = "none";
@@ -965,6 +937,7 @@
       resetTimer();
     }
 
+    // ===== BUTTON HANDLERS =====
     showAnswerBtn.addEventListener("click", () => {
       if (modalAnswer.style.display === "none") {
         modalAnswer.style.display = "block";
