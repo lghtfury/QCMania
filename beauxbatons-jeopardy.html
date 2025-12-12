@@ -394,7 +394,7 @@
       border-radius: 18px;
       border: 4px solid var(--bb-gold);
       padding: 14px 16px 16px;
-      max-width: 800px;
+      max-width: 900px;
       width: 96%;
       color: var(--bb-text-dark);
       box-shadow: 0 16px 40px rgba(0,0,0,0.9);
@@ -410,19 +410,39 @@
       pointer-events: none;
     }
 
-    .modal-header {
+    /* ====== NEW MODAL LAYOUT ====== */
+
+    .modal-top-row {
       display: flex;
+      align-items: flex-start;
       justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 8px;
+      gap: 14px;
+      margin-bottom: 10px;
+    }
+
+    .modal-left-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .modal-header {
+      flex: 1;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
     }
 
     .modal-header h2 {
       margin: 0;
-      font-size: 1.1rem;
+      font-size: 1.4rem;
       font-weight: 700;
       color: var(--bb-text-soft);
       font-family: "Cinzel", "Georgia", serif;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
     }
 
     .modal-header span {
@@ -434,6 +454,8 @@
       font-size: 1.02rem;
       line-height: 1.4;
       margin-top: 4px;
+      margin-bottom: 8px;
+      text-align: center;
     }
 
     .modal-image {
@@ -459,17 +481,17 @@
       font-size: 0.96rem;
     }
 
-    .modal-footer {
+    .modal-bottom-row {
       margin-top: 10px;
       display: flex;
-      flex-direction: column;
-      gap: 8px;
+      justify-content: flex-end;
     }
 
     .team-award-row {
+      margin-top: 14px;
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
+      gap: 8px;
       justify-content: center;
     }
 
@@ -482,7 +504,7 @@
       cursor: pointer;
       font-size: 0.85rem;
       font-weight: 600;
-      min-width: 130px;
+      min-width: 150px;
       box-shadow: 0 3px 10px rgba(0,0,0,0.5);
     }
 
@@ -490,14 +512,10 @@
       filter: brightness(1.06);
     }
 
-    .modal-controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: space-between;
-    }
-
-    .modal-controls button {
+    /* Buttons inside modal new layout */
+    .modal-left-controls button,
+    .modal-bottom-row button,
+    .modal-timer button {
       border-radius: 999px;
       border: 1px solid #4b5563;
       background: #111827;
@@ -510,35 +528,33 @@
       box-shadow: 0 3px 8px rgba(0,0,0,0.6);
     }
 
-    .modal-controls button.primary {
+    .modal-left-controls button.primary,
+    .modal-timer button.primary {
       background: var(--bb-deep-blue);
       border-color: #020617;
     }
 
-    .modal-controls button.danger {
+    .modal-bottom-row button.danger {
       background: #b91c1c;
       border-color: #7f1d1d;
     }
 
-    .modal-controls button:hover {
+    .modal-left-controls button:hover,
+    .modal-bottom-row button:hover,
+    .modal-timer button:hover {
       filter: brightness(1.08);
     }
 
     /* ===================== TIMER STYLES ===================== */
-    .timer-row {
+
+    .modal-timer {
       display: flex;
-      flex-wrap: wrap;
       align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.06);
-      border: 1px solid rgba(148,163,184,0.7);
+      gap: 6px;
       font-size: 0.9rem;
     }
 
-    .timer-row span {
+    .modal-timer .timer-label {
       font-weight: 600;
       color: var(--bb-text-soft);
     }
@@ -576,25 +592,9 @@
       100% { transform: scale(1.05);  opacity: 1;   }
     }
 
-    .timer-row button {
-      border-radius: 999px;
-      border: 1px solid #4b5563;
-      background: #111827;
-      color: #e5e7eb;
-      padding: 4px 10px;
-      cursor: pointer;
-      font-size: 0.8rem;
-      font-weight: 500;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
-    }
-
-    .timer-row button.primary {
-      background: var(--bb-deep-blue);
-      border-color: #020617;
-    }
-
-    .timer-row button:hover {
-      filter: brightness(1.08);
+    .modal-timer button.small {
+      font-size: 0.78rem;
+      padding: 3px 8px;
     }
 
     @media (max-width: 768px) {
@@ -603,6 +603,24 @@
       .category-header { font-size: 0.9rem; }
       .team-crest { width: 120px; height: 120px; }
       .score { font-size: 1.6rem; }
+
+      .modal-top-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .modal-timer {
+        justify-content: center;
+      }
+
+      .modal-left-controls {
+        flex-direction: row;
+        justify-content: center;
+      }
+
+      .modal-bottom-row {
+        justify-content: center;
+      }
     }
   </style>
 </head>
@@ -669,10 +687,25 @@
   <!-- Question modal -->
   <div class="modal-backdrop" id="modal-backdrop">
     <div class="modal">
-      <div class="modal-header">
-        <h2 id="modal-category">Category</h2>
-        <span id="modal-value">0</span>
+      <div class="modal-top-row">
+        <div class="modal-left-controls">
+          <button id="show-answer" class="primary">Show answer</button>
+          <button id="no-points">No points</button>
+        </div>
+
+        <div class="modal-header">
+          <h2 id="modal-category">Category</h2>
+          <span id="modal-value">0</span>
+        </div>
+
+        <div class="modal-timer">
+          <span class="timer-label">Time left:</span>
+          <span id="timer-display">60</span>
+          <button id="timer-start" class="primary small">Start 60s</button>
+          <button id="timer-reset" class="small">Reset</button>
+        </div>
       </div>
+
       <div class="modal-question" id="modal-question"></div>
 
       <div class="modal-image" id="modal-image" style="display:none;">
@@ -683,22 +716,10 @@
         <strong>Answer: </strong><span id="modal-answer-text"></span>
       </div>
 
-      <div class="modal-footer">
-        <!-- Timer row -->
-        <div class="timer-row">
-          <span>Time left:</span>
-          <span id="timer-display">60</span>
-          <button id="timer-start" class="primary">Start 60s</button>
-          <button id="timer-reset">Reset</button>
-        </div>
+      <div class="team-award-row" id="award-buttons"></div>
 
-        <div class="team-award-row" id="award-buttons"></div>
-
-        <div class="modal-controls">
-          <button id="show-answer" class="primary">Show answer</button>
-          <button id="no-points">No points</button>
-          <button id="close-modal" class="danger">Close</button>
-        </div>
+      <div class="modal-bottom-row">
+        <button id="close-modal" class="danger">Close</button>
       </div>
     </div>
   </div>
