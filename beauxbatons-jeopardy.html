@@ -583,6 +583,79 @@
       filter: brightness(1.08);
     }
 
+    /* ===================== TIMER STYLES ===================== */
+    .timer-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.06);
+      border: 1px solid rgba(148,163,184,0.7);
+      font-size: 0.9rem;
+    }
+
+    .timer-row span {
+      font-weight: 600;
+      color: var(--bb-text-soft);
+    }
+
+    #timer-display {
+      min-width: 46px;
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: #e5f0ff;
+      border: 1px solid #60a5fa;
+      color: #1e3a8a;
+      box-shadow: 0 0 8px rgba(191,219,254,0.8);
+    }
+
+    #timer-display.timer-low {
+      background: #fef3c7;
+      border-color: #facc15;
+      color: #92400e;
+      box-shadow: 0 0 10px rgba(250,204,21,0.8);
+    }
+
+    #timer-display.timer-finished {
+      background: #fee2e2;
+      border-color: #b91c1c;
+      color: #7f1d1d;
+      animation: timerFlash 0.6s ease-in-out infinite alternate;
+      box-shadow: 0 0 12px rgba(248,113,113,0.9);
+    }
+
+    @keyframes timerFlash {
+      0%   { transform: scale(1);     opacity: 0.8; }
+      100% { transform: scale(1.05);  opacity: 1;   }
+    }
+
+    .timer-row button {
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      background: #111827;
+      color: #e5e7eb;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 500;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    }
+
+    .timer-row button.primary {
+      background: var(--bb-deep-blue);
+      border-color: #020617;
+    }
+
+    .timer-row button:hover {
+      filter: brightness(1.08);
+    }
+
     @media (max-width: 768px) {
       header h1 { font-size: 1.7rem; }
       .tile { font-size: 1.15rem; min-height: 60px; }
@@ -688,7 +761,16 @@
       </div>
 
       <div class="modal-footer">
+        <!-- Timer row -->
+        <div class="timer-row">
+          <span>Time left:</span>
+          <span id="timer-display">60</span>
+          <button id="timer-start" class="primary">Start 60s</button>
+          <button id="timer-reset">Reset</button>
+        </div>
+
         <div class="team-award-row" id="award-buttons"></div>
+
         <div class="modal-controls">
           <button id="show-answer" class="primary">Show answer</button>
           <button id="no-points">No points</button>
@@ -726,11 +808,53 @@
     const resetBoardBtn = document.getElementById("reset-board");
     const resetScoresBtn = document.getElementById("reset-scores");
 
+    const timerDisplay = document.getElementById("timer-display");
+    const timerStartBtn = document.getElementById("timer-start");
+    const timerResetBtn = document.getElementById("timer-reset");
+
     let currentTile = null;
     let currentQuestion = null;
 
+    let timerInterval = null;
+    let timerRemaining = 60;
+
     function setStatus(msg) {
       statusEl.textContent = msg || "";
+    }
+
+    function updateTimerDisplay() {
+      if (!timerDisplay) return;
+      timerDisplay.textContent = timerRemaining;
+
+      timerDisplay.classList.remove("timer-low", "timer-finished");
+
+      if (timerRemaining <= 0) {
+        timerDisplay.textContent = "0";
+        timerDisplay.classList.add("timer-finished");
+      } else if (timerRemaining <= 10) {
+        timerDisplay.classList.add("timer-low");
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      timerRemaining = 60;
+      updateTimerDisplay();
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        timerRemaining -= 1;
+        if (timerRemaining <= 0) {
+          timerRemaining = 0;
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
+        updateTimerDisplay();
+      }, 1000);
+      updateTimerDisplay();
     }
 
     function fetchQuestions() {
@@ -870,6 +994,11 @@
       }
 
       buildAwardButtons(value);
+
+      // Reset and auto-start timer on new question
+      resetTimer();
+      startTimer();
+
       backdrop.classList.add("active");
     }
 
@@ -901,6 +1030,7 @@
 
     function closeModal() {
       backdrop.classList.remove("active");
+      resetTimer();
     }
 
     showAnswerBtn.addEventListener("click", () => {
@@ -935,6 +1065,17 @@
         for (let i = 0; i < scores.length; i++) scores[i] = 0;
         updateScores();
       }
+    });
+
+    timerStartBtn.addEventListener("click", () => {
+      if (timerRemaining === 0) {
+        timerRemaining = 60;
+      }
+      startTimer();
+    });
+
+    timerResetBtn.addEventListener("click", () => {
+      resetTimer();
     });
 
     async function loadEverything(fromButton) {
@@ -981,6 +1122,7 @@
 
     loadEverything(false);
     updateScores();
+    updateTimerDisplay();
   </script>
 </body>
 </html>
