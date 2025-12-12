@@ -7,29 +7,61 @@
 <style>
     body {
         margin: 0;
-        background: transparent;
         font-family: 'Arial', sans-serif;
         color: white;
-    }
-    .scoreboard {
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
         height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: background 0.5s;
         text-align: center;
     }
-    .team {
+
+    .scoreboard {
         display: flex;
         flex-direction: column;
         align-items: center;
+        width: 90%;
+        max-width: 1200px;
     }
-    .team img {
+
+    .top-team {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 50px;
+    }
+
+    .top-team img {
         max-width: 300px;
+        height: auto;
         margin-bottom: 10px;
     }
-    .score {
-        font-size: 5em;
+
+    .top-team .team-name {
+        font-size: clamp(2rem, 5vw, 3rem);
         font-weight: bold;
+        text-shadow: 0 0 10px rgba(0,0,0,0.7);
+    }
+
+    .top-team .score {
+        font-size: clamp(3rem, 8vw, 5rem);
+        font-weight: bold;
+        text-shadow: 0 0 15px rgba(0,0,0,0.7);
+    }
+
+    .other-teams {
+        display: flex;
+        justify-content: space-around;
+        width: 100%;
+    }
+
+    .other-teams .team {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: clamp(1rem, 3vw, 1.5rem);
+        text-shadow: 0 0 10px rgba(0,0,0,0.7);
     }
 </style>
 </head>
@@ -43,60 +75,102 @@
 const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTp9jiAXHLSXP4d983ipXv0fKZheaaJLSt4OYWgLookJisCeWVuMwZhXKi7VFpkx-SsSVhNyyL95xO3/pub?gid=1637211824&single=true&output=csv';
 
 const teamImages = {
-    'Hogwarts': 'Images/Hogwarts.png',
-    'Beauxbaton': 'Images/Beauxbaton.png',
-    'Durmstrang': 'Images/Durmstrang.png',
-    'Ilvermorny': 'Images/Ilvermorny.png'
+    'Hogwarts': 'https://raw.githubusercontent.com/lghtfury/QCMania/main/Images/Hogwarts.png',
+    'Beauxbaton': 'https://raw.githubusercontent.com/lghtfury/QCMania/main/Images/Beauxbaton.png',
+    'Durmstrang': 'https://raw.githubusercontent.com/lghtfury/QCMania/main/Images/Durmstrang.png',
+    'Ilvermorny': 'https://raw.githubusercontent.com/lghtfury/QCMania/main/Images/Ilvermorny.png'
 };
 
+const teamColors = {
+    'Hogwarts': 'linear-gradient(135deg, #FF0000, #FFD700, #0000FF, #008000)', // red, yellow, blue, green
+    'Beauxbaton': '#ADD8E6',   // light airy blue
+    'Durmstrang': 'linear-gradient(135deg, #FF4500, #8B0000)', // fiery gradient
+    'Ilvermorny': 'linear-gradient(135deg, #C0C0C0, #355E3B)' // silver & hunter green
+};
+
+const fallbackImage = 'https://raw.githubusercontent.com/lghtfury/QCMania/main/Images/default.png';
+
+// Fetch CSV and parse
 async function fetchCSV() {
-    const response = await fetch(csvUrl);
-    const data = await response.text();
-    return parseCSV(data);
-}
-
-function parseCSV(data) {
-    const lines = data.split('\n');
-    const headers = lines[0].split(',');
-    const teams = [];
-
-    for (let i = 1; i < lines.length; i++) {
-        const row = lines[i].split(',');
-        if (row.length < headers.length) continue;
-        const team = {};
-        headers.forEach((header, index) => {
-            team[header.trim()] = row[index].trim();
-        });
-        teams.push(team);
+    try {
+        const response = await fetch(csvUrl);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.text();
+        return parseCSV(data);
+    } catch (error) {
+        console.error('Failed to fetch CSV:', error);
+        return [];
     }
-    return teams;
 }
 
+// Parse CSV into array of objects
+function parseCSV(data) {
+    const lines = data.trim().split('\n');
+    const headers = lines.shift().split(',').map(h => h.trim());
+    return lines.map(line => {
+        const values = line.split(',').map(v => v.trim());
+        return Object.fromEntries(headers.map((h, i) => [h, values[i]]));
+    });
+}
+
+// Render the scoreboard
 function renderScoreboard(teams) {
     const container = document.getElementById('scoreboard');
     container.innerHTML = '';
 
-    teams.forEach(team => {
+    if (!teams.length) return;
+
+    // Sort descending by score
+    teams.sort((a, b) => (parseInt(b.Score) || 0) - (parseInt(a.Score) || 0));
+
+    const topTeam = teams[0];
+    document.body.style.background = teamColors[topTeam.Team] || '#222';
+
+    // Top team
+    const topDiv = document.createElement('div');
+    topDiv.className = 'top-team';
+    topDiv.innerHTML = `
+        <img src="${teamImages[topTeam.Team] || fallbackImage}" alt="${topTeam.Team}" onerror="this.src='${fallbackImage}'">
+        <div class="team-name">${topTeam.Team}</div>
+        <div class="score">${topTeam.Score}</div>
+    `;
+    container.appendChild(topDiv);
+
+    // Fade-in effect
+    topDiv.style.opacity = 0;
+    setTimeout(() => topDiv.style.transition = 'opacity 0.5s', 0);
+    setTimeout(() => topDiv.style.opacity = 1, 50);
+
+    // Other teams
+    const otherDiv = document.createElement('div');
+    otherDiv.className = 'other-teams';
+    teams.slice(1).forEach(team => {
         const div = document.createElement('div');
         div.className = 'team';
         div.innerHTML = `
-            <img src="${teamImages[team.Team]}" alt="${team.Team}">
+            <div class="team-name">${team.Team}</div>
             <div class="score">${team.Score}</div>
         `;
-        container.appendChild(div);
+        otherDiv.appendChild(div);
     });
+    container.appendChild(otherDiv);
 }
 
+// Update scoreboard every 10 seconds
 async function updateScoreboard() {
     const teams = await fetchCSV();
-    // Sort by score descending
-    teams.sort((a, b) => parseInt(b.Score) - parseInt(a.Score));
     renderScoreboard(teams);
 }
 
-// Update every 10 seconds
-updateScoreboard();
-setInterval(updateScoreboard, 10000);
+async function loopUpdateScoreboard(interval = 10000) {
+    while (true) {
+        await updateScoreboard();
+        await new Promise(r => setTimeout(r, interval));
+    }
+}
+
+// Start live updates
+loopUpdateScoreboard();
 </script>
 
 </body>
